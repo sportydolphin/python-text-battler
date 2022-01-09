@@ -1,0 +1,23 @@
+Name: albert
+Class: 1
+Level: 1
+XP: 10
+Health: 102
+Max Health: 102
+Mana: 100
+Max Mana: 100
+Health Regen: 0
+Max Health Regen: 0
+Mana Regen: 0
+Max Mana Regen: 0
+Attack Damage: 5
+Max Attack Damage: 5
+Ability Power: 0
+Max Ability Power: 0
+Armor: 0
+Max Armor: 0
+Magic Resist: 0
+Max Magic Resist: 0
+Crit Chance: 1
+Prio: 1
+Gold: 0
