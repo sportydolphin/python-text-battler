@@ -396,9 +396,6 @@ def first_play(p):
 
 
 if __name__ == '__main__':
-    i = 0
-    print(i+1)
-    print(i+2)
     # Initialize player
     player = initial_screen()
 

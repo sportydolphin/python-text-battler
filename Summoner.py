@@ -4,18 +4,18 @@ from enum import Enum
 import Armor
 
 
-def create_progress_bar(name, value, max):
+def create_progress_bar(name, value, maxValue):
     output = ''
     output += name + ': \t'
     if len(name) <= 5:
         output += '\t'
-    pct = value / max
+    pct = value / maxValue
     valueOutOf30 = (int(pct * 30))
     for i in range(valueOutOf30):
         output += '█'
     for j in range(30 - valueOutOf30):
         output += '□'
-    output += ' ' + str(value) + '/' + str(max)
+    output += ' ' + str(value) + '/' + str(maxValue)
     return output
 
 
@@ -117,18 +117,6 @@ class Summoner:
         else:
             return 'None'
 
-    # input string, ie 'mage', output number, ie 0
-    def class_to_num(self, str):
-        if str == 'mage':
-            return 0
-        if str == 'marksman':
-            return 1
-        if str == 'tank':
-            return 2
-        if str == 'fighter':
-            return 3
-        return 4
-
     # change stats to their max version, minus hp and mana
     def reset_combat_stats(self):
         self.ad = self.MAX_AD
@@ -152,13 +140,14 @@ class Summoner:
             print("Stat changes: " + self.level_up_stats())
         self.reset_combat_stats()
 
+    # set hp and mana to max values
     def full_heal(self):
         self.health = self.MAX_HEALTH
         self.mana = self.MAX_MANA
 
     # CHANGE WHEN ADDING STAT
     # adds stats accordingly, input is [['stat', value], ['stat', value]] format
-    # returns a string in format 'stat change | stat change | armor +20 | ap -15
+    # returns a string in format '<stat> <change> | <stat> <change> | armor +20 | ap -15
     def stat_change(self, stats):
         # forms output string
         output = ''
@@ -297,7 +286,6 @@ class Summoner:
                     # add all items in equipped folder to player's equipped item array
                     self.equipped.append(Armor.get_item_from_txt('saves/' + self.name + '/items/equipped/' + item))
 
-
     # equip item if free slot, or ask player to swap it or put in inventory
     def acquire_item(self, item):
         return True
@@ -309,3 +297,16 @@ class Class(Enum):
     TANK = 2
     FIGHTER = 3
     NONE = 4
+
+
+# input string, ie 'mage', output number, ie 0
+def class_to_num(st):
+    if st == 'mage':
+        return 0
+    if st == 'marksman':
+        return 1
+    if st == 'tank':
+        return 2
+    if st == 'fighter':
+        return 3
+    return 4

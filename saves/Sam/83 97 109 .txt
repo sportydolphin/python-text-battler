@@ -2,9 +2,9 @@ Name: Sam
 Class: 0
 Level: 1
 XP: 10
-Health: 100
+Health: 102
 Max Health: 102
-Mana: 100
+Mana: 110
 Max Mana: 110
 Health Regen: 0
 Max Health Regen: 0
