@@ -1,10 +1,12 @@
 import os
 import os.path
 import shutil
+import random
 
 import Battle
 from Summoner import Summoner
 from Summoner import max_xp
+from Summoner import class_to_num
 
 
 # check if a file with file_name exists in saves folder
@@ -48,7 +50,6 @@ def valid_input(selection, actual):
     return selection
 
 
-# BIG METHOD
 # ask for name and create save if not exist, load summoner if save exists (return summoner)
 def load_save(name):
     saveFileName = get_file_name(name)
@@ -65,7 +66,7 @@ def load_save(name):
         player = create_default_summoner(name)
         save_summoner_to_file(player)
         print('Summoner ' + player.name + ' created at level ' + player.level)
-    player.printSummoner()
+    player.print_summoner()
     return player
 
 
@@ -102,28 +103,38 @@ def show_all_saves():
 def save_summoner_to_file(s):
     with open('saves/' + s.name + '/' + get_file_name(s.name), 'w') as f:
         f.write('Name: ' + s.name
-                + '\nClass: ' + str(s.cl)
-                + '\nLevel: ' + str(s.level)
-                + '\nXP: ' + str(s.xp)
-                + '\nHealth: ' + str(s.health)
-                + '\nMax Health: ' + str(s.MAX_HEALTH)
-                + '\nMana: ' + str(s.mana)
-                + '\nMax Mana: ' + str(s.MAX_MANA)
-                + '\nHealth Regen: ' + str(s.healthr)
-                + '\nMax Health Regen: ' + str(s.MAX_HEALTHR)
-                + '\nMana Regen: ' + str(s.manar)
-                + '\nMax Mana Regen: ' + str(s.MAX_MANAR)
-                + '\nAttack Damage: ' + str(s.ad)
-                + '\nMax Attack Damage: ' + str(s.MAX_AD)
-                + '\nAbility Power: ' + str(s.ap)
-                + '\nMax Ability Power: ' + str(s.MAX_AP)
-                + '\nArmor: ' + str(s.armor)
-                + '\nMax Armor: ' + str(s.MAX_ARMOR)
-                + '\nMagic Resist: ' + str(s.mr)
-                + '\nMax Magic Resist: ' + str(s.MAX_MR)
-                + '\nCrit Chance: ' + str(s.crit)
-                + '\nPrio: ' + str(s.prio)
-                + '\nGold: ' + str(s.gold))
+                + '\n' + str(s.cl)
+                + '\n' + str(s.level)
+                + '\n' + str(s.xp)
+                + '\n' + str(s.b_health)
+                + '\n' + str(s.health)
+                + '\n' + str(s.MAX_HEALTH)
+                + '\n' + str(s.b_mana)
+                + '\n' + str(s.mana)
+                + '\n' + str(s.MAX_MANA)
+                + '\n' + str(s.b_healthr)
+                + '\n' + str(s.healthr)
+                + '\n' + str(s.MAX_HEALTHR)
+                + '\n' + str(s.b_manar)
+                + '\n' + str(s.manar)
+                + '\n' + str(s.MAX_MANAR)
+                + '\n' + str(s.b_ad)
+                + '\n' + str(s.ad)
+                + '\n' + str(s.MAX_AD)
+                + '\n' + str(s.b_ap)
+                + '\n' + str(s.ap)
+                + '\n' + str(s.MAX_AP)
+                + '\n' + str(s.b_armor)
+                + '\n' + str(s.armor)
+                + '\n' + str(s.MAX_ARMOR)
+                + '\n' + str(s.b_mr)
+                + '\n' + str(s.mr)
+                + '\n' + str(s.MAX_MR)
+                + '\n' + str(s.b_crit)
+                + '\n' + str(s.crit)
+                + '\n' + str(s.b_prio)
+                + '\n' + str(s.prio)
+                + '\n' + str(s.gold))
 
 
 # return a summoner with default values
@@ -132,23 +143,33 @@ def create_default_summoner(name):
                       cl=4,
                       level=1,
                       xp=0,
+                      b_health=100,
                       health=100,
                       max_health=100,
+                      b_mana=100,
                       mana=100,
                       max_mana=100,
+                      b_healthr=0,
                       healthr=0,
                       max_healthr=0,
+                      b_manar=0,
                       manar=0,
                       max_manar=0,
+                      b_ad=0,
                       ad=0,
                       max_ad=0,
+                      b_ap=0,
                       ap=0,
                       max_ap=0,
+                      b_armor=0,
                       armor=0,
                       max_armor=0,
+                      b_mr=0,
                       mr=0,
                       max_mr=0,
+                      b_crit=0,
                       crit=0,
+                      b_prio=0,
                       prio=0,
                       gold=0)
     return player
@@ -188,16 +209,16 @@ def create_save(lvlZero=False):
         gold = input("Enter gold: ")
 
     player = Summoner(name, cl, level, xp,
-                      health, health,
-                      mana, mana,
-                      healthr, healthr,
-                      manar, manar,
-                      ad, ad,
-                      ap, ap,
-                      armor, armor,
-                      mr, mr,
-                      crit,
-                      prio,
+                      health, health, health,
+                      mana, mana, mana,
+                      healthr, healthr, healthr,
+                      manar, manar, manar,
+                      ad, ad, ad,
+                      ap, ap, ap,
+                      armor, armor, armor,
+                      mr, mr, mr,
+                      crit, crit,
+                      prio, prio,
                       gold)
     return player
 
@@ -209,52 +230,105 @@ def get_summoner_from_file(name):
         lines = []
         for line in f:
             lines.append(line.strip())
-    name = lines[0]
-    cl = lines[1]
-    level = lines[2]
-    xp = lines[3]
-    health = lines[4]
-    max_hp = lines[5]
-    mana = lines[6]
-    max_mana = lines[7]
-    healthr = lines[8]
-    max_healthr = lines[9]
-    manar = lines[10]
-    max_manar = lines[11]
-    ad = lines[12]
-    max_ad = lines[13]
-    ap = lines[14]
-    max_ap = lines[15]
-    armor = lines[16]
-    max_armor = lines[17]
-    mr = lines[18]
-    max_mr = lines[19]
-    crit = lines[20]
-    prio = lines[21]
-    gold = lines[22]
+    i = 0
+    name = lines[i]
+    i += 1
+    cl = lines[i]
+    i += 1
+    level = lines[i]
+    i += 1
+    xp = lines[i]
+    i += 1
+    b_health = lines[i]
+    i += 1
+    health = lines[i]
+    i += 1
+    max_hp = lines[i]
+    i += 1
+    b_mana = lines[i]
+    i += 1
+    mana = lines[i]
+    i += 1
+    max_mana = lines[i]
+    i += 1
+    b_healthr = lines[i]
+    i += 1
+    healthr = lines[i]
+    i += 1
+    max_healthr = lines[i]
+    i += 1
+    b_manar = lines[i]
+    i += 1
+    manar = lines[i]
+    i += 1
+    max_manar = lines[i]
+    i += 1
+    b_ad = lines[i]
+    i += 1
+    ad = lines[i]
+    i += 1
+    max_ad = lines[i]
+    i += 1
+    b_ap = lines[i]
+    i += 1
+    ap = lines[i]
+    i += 1
+    max_ap = lines[i]
+    i += 1
+    b_armor = lines[i]
+    i += 1
+    armor = lines[i]
+    i += 1
+    max_armor = lines[i]
+    i += 1
+    b_mr = lines[i]
+    i += 1
+    mr = lines[i]
+    i += 1
+    max_mr = lines[i]
+    i += 1
+    b_crit = lines[i]
+    i += 1
+    crit = lines[i]
+    i += 1
+    b_prio = lines[i]
+    i += 1
+    prio = lines[i]
+    i += 1
+    gold = lines[i]
     player = Summoner(name[6:len(name)],
-                      int(cl[6:len(cl)]),
-                      int(level[7:len(level)]),
-                      int(xp[4:len(xp)]),
-                      int(health[8:len(health)]),
-                      int(max_hp[12:len(max_hp)]),
-                      int(mana[6:len(mana)]),
-                      int(max_mana[10:len(max_mana)]),
-                      int(healthr[14:len(healthr)]),
-                      int(max_healthr[18:len(max_healthr)]),
-                      int(manar[12:len(manar)]),
-                      int(max_manar[16:len(max_manar)]),
-                      int(ad[14:len(ad)]),
-                      int(max_ad[18:len(max_ad)]),
-                      int(ap[15:len(ap)]),
-                      int(max_ap[19:len(max_ap)]),
-                      int(armor[7:len(armor)]),
-                      int(max_armor[11:len(max_armor)]),
-                      int(mr[14:len(mr)]),
-                      int(max_mr[18:len(max_mr)]),
-                      int(crit[13:len(crit)]),
-                      int(prio[6:len(prio)]),
-                      int(gold[6:len(mana)]))
+                      int(cl),
+                      int(level),
+                      int(xp),
+                      int(b_health),
+                      int(health),
+                      int(max_hp),
+                      int(b_mana),
+                      int(mana),
+                      int(max_mana),
+                      int(b_healthr),
+                      int(healthr),
+                      int(max_healthr),
+                      int(b_manar),
+                      int(manar),
+                      int(max_manar),
+                      int(b_ad),
+                      int(ad),
+                      int(max_ad),
+                      int(b_ap),
+                      int(ap),
+                      int(max_ap),
+                      int(b_armor),
+                      int(armor),
+                      int(max_armor),
+                      int(b_mr),
+                      int(mr),
+                      int(max_mr),
+                      int(b_crit),
+                      int(crit),
+                      int(b_prio),
+                      int(prio),
+                      int(gold))
     return player
 
 
@@ -262,8 +336,9 @@ def get_summoner_from_file(name):
 def delete_all_saves(p):
     files = [f for f in os.listdir('saves/')]
     for save in files:
-        if not save == p.name:
+        if not save == p.name and not save == '.DS_Store':
             delete_save(save)
+
 
 # delete a file, if exists, with inputted name
 def delete_save(name):
@@ -287,8 +362,8 @@ def get_commands(p):
     selection = input('Input command (battle/town/explore/info/admin): ')
     selection = valid_input(selection, ['admin', 'info', 'battle', 'town', 'explore'])
     if selection == 'admin':
-        category = input('Which category are you looking for? (save/battle): ')
-        category = valid_input(category, ['save', 'battle'])
+        category = input('Which category are you looking for? (save/battle/cheat): ')
+        category = valid_input(category, ['save', 'battle', 'cheat'])
 
         if category == 'save':
             command = input('Which commands are you looking for? (create save/delete save/show saves/switch save): ')
@@ -320,12 +395,30 @@ def get_commands(p):
                 selection = valid_input(selection, get_all_saves())
                 return load_save(selection)
         elif category == 'battle':
-            command = input('Which commands are you looking for? (rand name): ')
-            command = valid_input(command, ['rand name'])
+            command = input('Which commands are you looking for? (rand name, rand weapon): ')
+            command = valid_input(command, ['rand name', 'rand weapon'])
             if command == 'rand name':
-                print('Randomly generated name: ' + Battle.generate_name())
+                command = input('Which type of random name? (summoner, weapon): ')
+                command = valid_input(command, ['summoner', 'weapon'])
+                print('Randomly generated name: ' + Battle.generate_name(command))
+            elif command == 'rand weapon':
+                print(Battle.generate_random_weapon(p).print())
+        elif category == 'cheat':
+            command = input('Which commands are you looking for? (level up/add gold): ')
+            command = valid_input(command, ['level up', 'add gold'])
+            if command == 'level up':
+                levels = input('How many times would you like to level up: ')
+                for i in range(int(levels)):
+                    p.level_up()
+                    p.update_player_stats()
+                p.full_heal()
+                print('Leveled up ' + levels + ' times.')
+            elif command == 'add gold':
+                gold = input('Enter gold to add: ')
+                p.gold += int(gold)
+                print('Added ' + gold + ' gold.')
     elif selection == 'info':
-        p.printSummoner()
+        p.print_summoner()
     elif selection == 'battle':
         p = Battle.battle(p)
     elif selection == 'town':
@@ -383,8 +476,9 @@ def first_play(p):
         selection = input('Selection: ')
     selection = input('Type the name of the class you\' would like to be: ')
     selection = valid_input(selection, ['mage', 'marksman', 'tank', 'fighter', 'choose'])
-    p.cl = p.class_to_num(selection)
+    p.cl = class_to_num(selection)
     p.level_up_stats()
+    p.update_player_stats()
     print('So you\'ve chosen to be a ' + p.get_class() + '! As a reward, here\'s 10 xp. Remember, you can always '
                                                          'check your stats by typing info. Good luck out there, '
                                                          'summoner!')
