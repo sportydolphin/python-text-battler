@@ -4,21 +4,21 @@ Azure Lightning
 Balance
 Blessed One
 Bone
-Bonnie’s Bounty
+Bonnie's Bounty
 Brawn
 Burning Hate
-Cat’s Claw
+Cat's Claw
 Cleaver
 Crimson Fury
 Darkness
-Death’s Hand
+Death's Hand
 Defiance
 Despair
 Devotion
 Disdain
 Divine Right
 Dominion
-Dragon’s Tooth
+Dragon's Tooth
 Echo
 Eternal Damnation
 Evil Eye
@@ -29,7 +29,7 @@ Fortitude
 Frenzy
 Funereal Edge
 Fury
-Giant’s Bane
+Giant's Bane
 Grim Reality
 Harbinger
 Harsh Lesson
@@ -41,17 +41,17 @@ Ice Shard
 Icy Rage
 nsolence
 Iron Fist
-Jarod’s Fever
+Jarod's Fever
 Justice
 Killing Blow
-King’s Glory
+King's Glory
 Lament
 Last Rights
-Marauder’s Mania
+Marauder's Mania
 Mercy
 Might & Right
 Misery
-Night’s Wind
+Night's Wind
 Oblivion
 Obsession
 Oracle
@@ -62,7 +62,7 @@ Pride
 Promise Keeper
 Proud Glory
 Punishment
-Queen’s Rage
+Queen's Rage
 Quicksilver
 Rage
 Razor
@@ -87,7 +87,7 @@ Tenacity
 Truth
 Torrent
 Unrepentant
-Usurper’s Bane
+Usurper's Bane
 Valor
 Vapor
 Vengeance
@@ -95,6 +95,6 @@ Verdant Pain
 Victory
 War Bringer
 Widowmaker
-Winter’s Bane
-Yanna’s Blaze
-Zara’s Song
+Winter's Bane
+Yanna's Blaze
+Zara's Song

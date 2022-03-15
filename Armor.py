@@ -24,28 +24,28 @@ class Item:
                          ['flavor', self.flavor]]
 
     # create string of name, slot and stats
-    def print(self):
+    def print(self, p):
         return 'Name: ' + self.name + '\tSlot: ' + self.slot_str + '\n' + self.flavor + '\nStats: ' + self.print_stats()
 
     # return string of stats, with extras if weapon
-    def print_stats(self):
+    def print_stats(self, p):
         out = 'hp: ' + str(self.health) + ' | mana: ' + str(self.mana) + ' | ad: ' + str(self.ad) + ' | ap: ' \
               + str(self.ap) + ' | armor: ' + str(self.armor) + ' | mr: ' + str(self.mr) + ' | crit: ' \
               + str(self.crit) + '% | prio: ' + str(self.prio)
         if isinstance(self, Weapon):
-            out += 'damage type: ' + self.dmg_type + ' | scaling: ' + str(100 * self.pct_scale) + '% of ' \
+            out += 'Damage type: ' + self.dmg_type + ' | scaling: ' + str(100 * self.pct_scale) + '% of ' \
                    + self.stat_scale
         return out
 
     # return string of stats, with extras if weapons, exclude all stats that are 0
-    def print_stats_without_zero(self):
-        out = '| '
-        for i in range(len(self.stat_arr)):
-            if self.stat_arr[i][1] != 0:
-                out += self.stat_arr[i][0] + ':' + str(self.stat_arr[i][1]) + ' | '
+    def print_stats_without_zero(self, p):
+        out = self.name + '\n' + self.flavor + '\nBonus stats: | '
+        for i in range(2, 12):
+            if int(self.stat_arr[i][1]) != 0:
+                out += self.stat_arr[i][0] + ': ' + str(self.stat_arr[i][1]) + ' | '
         if isinstance(self, Weapon):
-            out += 'damage type: ' + self.dmg_type + ' | scaling: ' + str(100 * self.pct_scale) + '% of ' \
-                   + self.stat_scale
+            out += '\ndamage type: ' + self.dmg_type + ' | scaling: ' + str(round(100 * self.pct_scale)) + '% of ' \
+                   + self.stat_scale + ' (' + str(round(self.pct_scale * p.get_statnum_fromstr(self.stat_scale))) + ' damage)'
         return out
 
 
@@ -134,16 +134,17 @@ def get_item_from_txt(txt_path):
     if slot_str == 'WEAPON':
         stat_scale = lines[i + 1]
         pct_scale = lines[i + 1]
+        dmg_type = lines[i + 1]
         effects = lines[i + 1]
-        return Weapon(name, health, mana, healthr, manar, ad, ap, armor, mr, prio, flavor, stat_scale, pct_scale,
-                      effects)
+        return Weapon(name, health, mana, healthr, manar, ad, ap, armor, mr, crit, prio, flavor, stat_scale, pct_scale,
+                      dmg_type, effects)
     else:  # if armor
-        return Item(name, get_slot_from_str(slot_str), health, mana, healthr, manar, ad, ap, armor, mr, prio, flavor)
+        return Item(name, get_slot_from_str(slot_str), health, mana, healthr, manar, ad, ap, armor, mr, crit,  prio, flavor)
 
 
 # write item to text file
 def write_item_to_txt(path, item):
-    with open(path + item.name, 'w') as f:
+    with open(path + item.name + '.txt', 'w') as f:
         f.write(item.name
                 + '\n' + item.slot_str
                 + '\n' + str(item.health)
@@ -157,3 +158,8 @@ def write_item_to_txt(path, item):
                 + '\n' + str(item.crit)
                 + '\n' + str(item.prio)
                 + '\n' + str(item.flavor))
+        if item.slot == Slot.WEAPON:
+            f.write('\n' + item.stat_scale
+                    + '\n' + str(item.pct_scale)
+                    + '\n' + item.dmg_type
+                    + '\n' + str(item.effects))

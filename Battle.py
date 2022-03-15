@@ -81,41 +81,63 @@ def generate_random_weapon(p):
     #    allStatNums.append(0)
 
     # depending on class, increase likelihood of certain stats increasing
-    biasStats = []
+    biasStats = ['ad']
     if p.clStr == Class.MAGE:
         biasStats = ['ap', 'mana', 'manar']
     elif p.clStr == Class.TANK:
         biasStats = ['health', 'healthr', 'armor', 'mr']
     elif p.clStr == Class.FIGHTER:
-        biasStats = ['hp', 'ad', 'armor', 'mr']
+        biasStats = ['health', 'ad', 'armor', 'mr']
     elif p.clStr == Class.MARKSMAN:
         biasStats = ['ad', 'prio', 'crit']
 
-    for stat in allStatStrings:
-        coef = 0  # coefficient for current stat being iterated on
-        if stat in biasStats:  # if current stat gets 50% chance of increase
-            rand = random.randint(0, 1)
-        else:  # if current stat gets 10% chance of increase
-            rand = random.randint(0, 9)
-        if rand == 0:  # if chance of increase succeeds
-            coef = random.randint(0, 50)  # change this to change stat increases, currently 0-5x player level
-            coef = coef / 10  # coef is between 0 and 5 in increments of 0.1
-        allStatNums.append(p.level * coef)  # add stat change to stat array to be passed to weapon constructor
+    allStatsZero = True
+    while allStatsZero:
+        for stat in allStatStrings:
+            coef = 0  # coefficient for current stat being iterated on
+            if stat in biasStats:  # if current stat gets 50% chance of increase
+                rand = random.randint(0, 1)
+            else:  # if current stat gets 10% chance of increase
+                rand = random.randint(0, 9)
+            if rand == 0:  # if chance of increase succeeds
+                coef = random.randint(0, 50)  # change this to change stat increases, currently 0-5x player level
+                coef = coef / 10  # coef is between 0 and 5 in increments of 0.1
+            allStatNums.append(round(p.level * coef))  # add stat change to stat array to be passed to weapon
+            # constructor
+        for stat in allStatNums:  # check if no stat buffs. if that's the case, run the while loop once again
+            if stat != 0:
+                allStatsZero = False
+        if allStatsZero:
+            allStatNums = []
 
     # determine stat scaling
+    if 'healthr' in biasStats:  # ensuring damage only scales off of hp, mana, ad, ap, armor, mr
+        biasStats.remove('healthr')
+    if 'manar' in biasStats:
+        biasStats.remove('manar')
+    if 'prio' in biasStats:
+        biasStats.remove('prio')
+    if 'crit' in biasStats:
+        biasStats.remove('crit')
+    allStatStrings.remove('healthr')
+    allStatStrings.remove('manar')
+    allStatStrings.remove('prio')
+    allStatStrings.remove('crit')
     rand = random.randint(1, 10)
     stat_scale = 'ad'  # default ad just in case random breaks
-    if rand <= 6:  # 60% chance it'll scale off of a bias stat
-        x = random.randint(0,len(allStatStrings) - 3)  # subtract 3 to prevent scaling from prio and crit
+    if p.level == int(1):  # make it guaranteed to scale off bias stat for level 1
+        rand = 8
+    if rand <= 6:  # 60% chance it'll scale off of a random stat (could be bias stat still)
+        x = random.randint(0, len(allStatStrings) - 1)  # subtract 3 to prevent scaling from prio and crit
         stat_scale = allStatStrings[x]
-    else:
-        x = random.randint(0,len(biasStats) - 1)
+    else:  # 40% chance it'll scale off of bias stat
+        x = random.randint(0, len(biasStats) - 1)
         stat_scale = biasStats[x]
-
     # determine pct stat scaling
     x = random.randint(0, 100)
-    x = x / 10  # x is between 0 and 10 by increments of 0.1
-    pct_scale = pow(1.6, x)
+    x = x / 10  # x is between 0 and 5 by increments of 0.1
+    y = pow(1.6, x) + 10  # y is between 0 and ~110
+    pct_scale = y / 100
 
     # determine physical or magic damage
     rand = random.randint(0, 1)
@@ -139,8 +161,8 @@ def generate_random_weapon(p):
 def battle(p):
     # random chance of encountering a monster or enemy summoner
     random.seed()
-    rand = random.randint(1,100)  # generate number 0-99
+    rand = random.randint(1, 100)  # generate number 0-99
 
-    if rand < 40:  # 40% chance to encounter enemy summoner
-        p = generate_random_enemy(p, 0)
+    #if rand < 40:  # 40% chance to encounter enemy summoner
+    #    p = generate_random_enemy(p, 0)
     return p

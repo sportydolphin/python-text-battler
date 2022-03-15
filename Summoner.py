@@ -92,7 +92,7 @@ class Summoner:
         self.equipped = []  # items the player is wearing
         self.inventory = []  # items the player has stored
 
-    # returns a string in format 'Name: [loading_bar] value/max®
+    # prints a string in format 'Name: [loading_bar] value/max®
     def print_summoner(self):
         print("________________________________________________________________")
         print("SUMMONER INFORMATION")
@@ -113,6 +113,27 @@ class Summoner:
         print(output)
         print('Gold: ' + str(self.gold))
         print("________________________________________________________________")
+
+    # returns a string in format 'Name: [loading_bar] value/max®
+    def print(self):
+        output = "________________________________________________________________"
+        output += "\nSUMMONER INFORMATION"
+        output += ("\nName:\t\t" + self.name) + "\t\tClass " + self.get_class()  # summoner name
+
+        output += '\n' + create_progress_bar('Level', self.level, self.MAX_LEVEL)
+        output += ('\n' + create_progress_bar('XP', self.xp, self.MAX_XP))
+        output += ('\n' + create_progress_bar('Health', self.health, self.MAX_HEALTH))
+        output += ('\n' + create_progress_bar('Mana', self.mana, self.MAX_MANA))
+        output += '\n'
+        output += '| ad: ' + str(self.ad) + \
+                  ' | crit: ' + str(self.crit) + \
+                  ' | ap: ' + str(self.ap) + \
+                  ' | armor: ' + str(self.armor) + \
+                  ' | mr: ' + str(self.mr) + \
+                  ' | hp/turn: ' + str(self.healthr) + \
+                  ' | mana/turn: ' + str(self.manar) + ' |'
+        output += ('\nGold: ' + str(self.gold))
+        output += "\n________________________________________________________________"
 
     # returns string of class of summoner
     def get_class(self):
@@ -306,7 +327,7 @@ class Summoner:
             return self.b_health
         elif st == 'b_mana':
             return self.b_mana
-        elif st == 'hp':
+        elif st == 'health':
             return self.health
         elif st == 'mana':
             return self.mana
@@ -330,7 +351,7 @@ class Summoner:
             return self.MAX_AD
         elif st == 'b_ap':
             return self.b_ap
-        elif st == 'ap:':
+        elif st == 'ap':
             return self.ap
         elif st == 'max_ap':
             return self.MAX_AP

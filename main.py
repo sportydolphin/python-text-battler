@@ -4,6 +4,7 @@ import shutil
 import random
 
 import Battle
+import Armor
 from Summoner import Summoner
 from Summoner import max_xp
 from Summoner import class_to_num
@@ -143,12 +144,12 @@ def create_default_summoner(name):
                       cl=4,
                       level=1,
                       xp=0,
-                      b_health=100,
-                      health=100,
-                      max_health=100,
-                      b_mana=100,
-                      mana=100,
-                      max_mana=100,
+                      b_health=10,
+                      health=10,
+                      max_health=10,
+                      b_mana=10,
+                      mana=10,
+                      max_mana=10,
                       b_healthr=0,
                       healthr=0,
                       max_healthr=0,
@@ -395,14 +396,16 @@ def get_commands(p):
                 selection = valid_input(selection, get_all_saves())
                 return load_save(selection)
         elif category == 'battle':
-            command = input('Which commands are you looking for? (rand name, rand weapon): ')
-            command = valid_input(command, ['rand name', 'rand weapon'])
+            command = input('Which commands are you looking for? (rand name, rand weapon, rand enemy): ')
+            command = valid_input(command, ['rand name', 'rand weapon', 'rand enemy'])
             if command == 'rand name':
                 command = input('Which type of random name? (summoner, weapon): ')
                 command = valid_input(command, ['summoner', 'weapon'])
                 print('Randomly generated name: ' + Battle.generate_name(command))
             elif command == 'rand weapon':
-                print(Battle.generate_random_weapon(p).print())
+                print(Battle.generate_random_weapon(p).print_stats_without_zero(p))
+            elif command == 'rand enemy':
+                print(Battle.generate_random_enemy(p, 0).print())
         elif category == 'cheat':
             command = input('Which commands are you looking for? (level up/add gold): ')
             command = valid_input(command, ['level up', 'add gold'])
@@ -447,7 +450,7 @@ def initial_screen():
         return create_save(True)
 
 
-# when a summoner is created for the first time to choose class
+# when a summoner is created for the first time to choose class, get a weapon
 def first_play(p):
     print('Welcome to GAME NAME HERE. If this is your first time playing, I highly recommend typing \'info\' in order '
           'to familiarize yourself with the game. Otherwise, we can get started!')
@@ -499,6 +502,8 @@ if __name__ == '__main__':
 
     # Testing section
     # Battle.generate_random_enemy(player, 0).printSummoner()
+    newWeapon = Battle.generate_random_weapon(player)
+    Armor.write_item_to_txt('saves/' + player.name + '/items/equipped/', newWeapon)
 
     # Main loop, continuously update player
     while True:
