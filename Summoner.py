@@ -92,33 +92,11 @@ class Summoner:
         self.equipped = []  # items the player is wearing
         self.inventory = []  # items the player has stored
 
-    # prints a string in format 'Name: [loading_bar] value/max®
-    def print_summoner(self):
-        print("________________________________________________________________")
-        print("SUMMONER INFORMATION")
-        print(("Name:\t\t" + self.name) + "\t\tClass " + self.get_class())  # summoner name
-
-        print(create_progress_bar('Level', self.level, self.MAX_LEVEL))
-        print(create_progress_bar('XP', self.xp, self.MAX_XP))
-        print(create_progress_bar('Health', self.health, self.MAX_HEALTH))
-        print(create_progress_bar('Mana', self.mana, self.MAX_MANA))
-        output = '\n'
-        output += '| ad: ' + str(self.ad) + \
-                  ' | crit: ' + str(self.crit) + \
-                  ' | ap: ' + str(self.ap) + \
-                  ' | armor: ' + str(self.armor) + \
-                  ' | mr: ' + str(self.mr) + \
-                  ' | hp/turn: ' + str(self.healthr) + \
-                  ' | mana/turn: ' + str(self.manar) + ' |'
-        print(output)
-        print('Gold: ' + str(self.gold))
-        print("________________________________________________________________")
-
-    # returns a string in format 'Name: [loading_bar] value/max®
+    # returns all player info
     def print(self):
         output = "________________________________________________________________"
-        output += "\nSUMMONER INFORMATION"
-        output += ("\nName:\t\t" + self.name) + "\t\tClass " + self.get_class()  # summoner name
+        output += "\nSUMMONER INFORMATION:"
+        output += ("\nName:\t\t" + self.name) + "\t\tClass: " + self.get_class() + "\t\tGold: " + str(self.gold)  # summoner name
 
         output += '\n' + create_progress_bar('Level', self.level, self.MAX_LEVEL)
         output += ('\n' + create_progress_bar('XP', self.xp, self.MAX_XP))
@@ -132,8 +110,16 @@ class Summoner:
                   ' | mr: ' + str(self.mr) + \
                   ' | hp/turn: ' + str(self.healthr) + \
                   ' | mana/turn: ' + str(self.manar) + ' |'
-        output += ('\nGold: ' + str(self.gold))
-        output += "\n________________________________________________________________"
+        output += "\n________________________________________________________________\n"
+        return output
+
+    # returns all equipped items in a str
+    def print_items(self):
+        output = '\nEquipped items:\n\n'
+        for it in self.equipped:
+            output += it.print_stats_without_zero(self)
+        output += '\n'
+        return output
 
     # returns string of class of summoner
     def get_class(self):
@@ -381,13 +367,14 @@ class Summoner:
     # load the player's items from text files
     def load_items(self):
         items = os.listdir('saves/' + self.name + '/items/equipped')
-        if len(items) > 1:  # account for .DS file in empty folder
+        if len(items) > 0:  # account for .DS file in empty folder
             for item in items:
                 if not item.startswith('.'):  # filter out any invalid files
                     # add all items in equipped folder to player's equipped item array
                     self.equipped.append(Armor.get_item_from_txt('saves/' + self.name + '/items/equipped/' + item))
 
     # equip item if free slot, or ask player to swap it or put in inventory
+    # save item to appropriate equipped or inventory folder
     def acquire_item(self, item):
         # if player equipped item, call update_player_stats
         # check if player already has an item of the same slot equipped
@@ -400,6 +387,7 @@ class Summoner:
         if can_equip:
             self.equipped.append(item)
             print('You equipped ' + item.name + '!')
+            Armor.write_item_to_txt(self, item, 'equipped')
         else:
             print('You already have an item equipped in your ' + item.slot_str
                   + ' slot. Would you like to replace it with ' + item.name + '?')
@@ -412,9 +400,11 @@ class Summoner:
                 self.equipped.remove(existing_item)
                 self.equipped.append(item)
                 print('You equipped ' + item.name + '!')
+                Armor.write_item_to_txt(self, item, 'equipped')
             else:
                 self.inventory.append(item)
                 print('You stored ' + item.name + ' in your inventory.')
+                Armor.write_item_to_txt(self, item, 'inventory')
 
 
 class Class(Enum):

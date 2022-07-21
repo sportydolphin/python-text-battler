@@ -52,12 +52,14 @@ def valid_input(selection, actual):
 
 
 # ask for name and create save if not exist, load summoner if save exists (return summoner)
+# load summoner items
 def load_save(name):
     saveFileName = get_file_name(name)
 
     if find_file(name):  # Save file is found
         print('Save found.')
         player = get_summoner_from_file(name)
+        player.load_items()
     else:  # Save file is not found
         selection = input('Save file not found. Create new save? (y/n): ')
         selection = valid_input(selection, ['y', 'n'])
@@ -67,7 +69,7 @@ def load_save(name):
         player = create_default_summoner(name)
         save_summoner_to_file(player)
         print('Summoner ' + player.name + ' created at level ' + player.level)
-    player.print_summoner()
+    print(player.print())
     return player
 
 
@@ -102,7 +104,7 @@ def show_all_saves():
 #     //////////////////////////////////////////  WHEN ADDING NEW STAT, UPDATE THESE 4: \\\\\\\\\\\\\\\\\\\\\\\\\\
 # write a summoner object to a txt file in saves
 def save_summoner_to_file(s):
-    with open('saves/' + s.name + '/' + get_file_name(s.name), 'w') as f:
+    with open('saves/' + s.name + '/' + get_file_name(s.name), 'w+') as f:
         f.write('Name: ' + s.name
                 + '\n' + str(s.cl)
                 + '\n' + str(s.level)
@@ -136,6 +138,14 @@ def save_summoner_to_file(s):
                 + '\n' + str(s.b_prio)
                 + '\n' + str(s.prio)
                 + '\n' + str(s.gold))
+
+    # add folders for equipped items and inventory items if not already there
+    if not os.path.exists('saves/' + s.name + '/items'):
+        os.mkdir('saves/' + s.name + '/items')
+    if not os.path.exists('saves/' + s.name + '/items/equipped'):
+        os.mkdir('saves/' + s.name + '/items/equipped')
+    if not os.path.exists('saves/' + s.name + '/items/inventory'):
+        os.mkdir('saves/' + s.name + '/items/inventory')
 
 
 # return a summoner with default values
@@ -188,7 +198,7 @@ def create_save(lvlZero=False):
     if lvlZero:
         os.mkdir('saves/' + name)  # create save folder
         os.mkdir('saves/' + name + '/items')
-        os.mkdir('saves/' + name + '/items/equpped')
+        os.mkdir('saves/' + name + '/items/equipped')
         os.mkdir('saves/' + name + '/items/inventory')
         p = create_default_summoner(name)
         save_summoner_to_file(p)
@@ -360,8 +370,8 @@ def explore(p):
 
 # main menu each turn
 def get_commands(p):
-    selection = input('Input command (battle/town/explore/info/admin): ')
-    selection = valid_input(selection, ['admin', 'info', 'battle', 'town', 'explore'])
+    selection = input('Input command (info/items/battle/town/explore/admin): ')
+    selection = valid_input(selection, ['admin', 'info', 'items', 'battle', 'town', 'explore'])
     if selection == 'admin':
         category = input('Which category are you looking for? (save/battle/cheat): ')
         category = valid_input(category, ['save', 'battle', 'cheat'])
@@ -421,13 +431,21 @@ def get_commands(p):
                 p.gold += int(gold)
                 print('Added ' + gold + ' gold.')
     elif selection == 'info':
-        p.print_summoner()
+        print(p.print())
+    elif selection == 'items':
+        print(p.print_items())
     elif selection == 'battle':
         p = Battle.battle(p)
     elif selection == 'town':
         p = town(p)
     elif selection == 'explore:':
         p = explore(p)
+    # end the current command with a long line to indicate clearly
+    line = ''
+    columns, lines = shutil.get_terminal_size()
+    for i in range(columns):
+        line += '_'
+    print(line)
     return p
 
 
@@ -502,8 +520,10 @@ if __name__ == '__main__':
 
     # Testing section
     # Battle.generate_random_enemy(player, 0).printSummoner()
-    newWeapon = Battle.generate_random_weapon(player)
-    Armor.write_item_to_txt('saves/' + player.name + '/items/equipped/', newWeapon)
+    # newWeapon = Battle.generate_random_weapon(player)
+    # print('You are being given a gift of ' + newWeapon.name)
+    # player.acquire_item(newWeapon)
+    # Armor.write_item_to_txt('saves/' + player.name + '/items/equipped/', newWeapon)
 
     # Main loop, continuously update player
     while True:

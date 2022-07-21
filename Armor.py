@@ -143,8 +143,13 @@ def get_item_from_txt(txt_path):
 
 
 # write item to text file
-def write_item_to_txt(path, item):
-    with open(path + item.name + '.txt', 'w') as f:
+# destination: 'equipped' or 'inventory'
+def write_item_to_txt(player, item, destination):
+    if destination == 'equipped':
+        path = 'saves/' + player.name + '/items/equipped/'
+    else:
+        path = 'saves/' + player.name + '/items/inventory/'
+    with open(path + item.name + '.txt', 'w+') as f:
         f.write(item.name
                 + '\n' + item.slot_str
                 + '\n' + str(item.health)
