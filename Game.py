@@ -2,12 +2,15 @@ import os
 import os.path
 import shutil
 import random
+import pickle
 
-import Battle
+from Battle import generate_name, generate_random_enemy, get_name_list, generate_random_weapon
+import Town.Town as Town
 import Armor
-from Summoner import Summoner
+from Summoner import Summoner, max_xp, class_to_num, create_default_summoner
 from Summoner import max_xp
 from Summoner import class_to_num
+from utils import valid_input
 
 
 # check if a file with file_name exists in saves folder
@@ -34,21 +37,7 @@ def get_ASCII(inputstring):
 
 # input poop, output 112 111 111 112.txt
 def get_file_name(inputstring):
-    return get_ASCII(inputstring) + '.txt'
-
-
-# check if selection is the same as any element of actual, return user input (may ask for re-input if invalid)
-def valid_input(selection, actual):
-    valid = False
-    for i in actual:
-        if selection == i:
-            valid = True
-    while not valid:
-        selection = input('Invalid input. Try again: ')
-        for i in actual:
-            if selection == i:
-                valid = True
-    return selection
+    return get_ASCII(inputstring)
 
 
 # ask for name and create save if not exist, load summoner if save exists (return summoner)
@@ -79,7 +68,8 @@ def get_all_saves():
     names = []
     if len(saves) > 1:
         for save in saves:
-            if not save.startswith('.'):  # commented code is from when each user didn't have own folder
+            # commented code is from when each user didn't have own folder
+            if not save.startswith('.'):
                 # name = ''
                 # justNums = save[0:len(save) - 4]
                 # numList = justNums.split()
@@ -104,40 +94,8 @@ def show_all_saves():
 #     //////////////////////////////////////////  WHEN ADDING NEW STAT, UPDATE THESE 4: \\\\\\\\\\\\\\\\\\\\\\\\\\
 # write a summoner object to a txt file in saves
 def save_summoner_to_file(s):
-    with open('saves/' + s.name + '/' + get_file_name(s.name), 'w+') as f:
-        f.write('Name: ' + s.name
-                + '\n' + str(s.cl)
-                + '\n' + str(s.level)
-                + '\n' + str(s.xp)
-                + '\n' + str(s.b_health)
-                + '\n' + str(s.health)
-                + '\n' + str(s.MAX_HEALTH)
-                + '\n' + str(s.b_mana)
-                + '\n' + str(s.mana)
-                + '\n' + str(s.MAX_MANA)
-                + '\n' + str(s.b_healthr)
-                + '\n' + str(s.healthr)
-                + '\n' + str(s.MAX_HEALTHR)
-                + '\n' + str(s.b_manar)
-                + '\n' + str(s.manar)
-                + '\n' + str(s.MAX_MANAR)
-                + '\n' + str(s.b_ad)
-                + '\n' + str(s.ad)
-                + '\n' + str(s.MAX_AD)
-                + '\n' + str(s.b_ap)
-                + '\n' + str(s.ap)
-                + '\n' + str(s.MAX_AP)
-                + '\n' + str(s.b_armor)
-                + '\n' + str(s.armor)
-                + '\n' + str(s.MAX_ARMOR)
-                + '\n' + str(s.b_mr)
-                + '\n' + str(s.mr)
-                + '\n' + str(s.MAX_MR)
-                + '\n' + str(s.b_crit)
-                + '\n' + str(s.crit)
-                + '\n' + str(s.b_prio)
-                + '\n' + str(s.prio)
-                + '\n' + str(s.gold))
+    with open('saves/' + s.name + '/' + get_file_name(s.name) + '.pickle', 'wb') as f:
+        pickle.dump(s, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     # add folders for equipped items and inventory items if not already there
     if not os.path.exists('saves/' + s.name + '/items'):
@@ -146,44 +104,6 @@ def save_summoner_to_file(s):
         os.mkdir('saves/' + s.name + '/items/equipped')
     if not os.path.exists('saves/' + s.name + '/items/inventory'):
         os.mkdir('saves/' + s.name + '/items/inventory')
-
-
-# return a summoner with default values
-def create_default_summoner(name):
-    player = Summoner(name,
-                      cl=4,
-                      level=1,
-                      xp=0,
-                      b_health=10,
-                      health=10,
-                      max_health=10,
-                      b_mana=10,
-                      mana=10,
-                      max_mana=10,
-                      b_healthr=0,
-                      healthr=0,
-                      max_healthr=0,
-                      b_manar=0,
-                      manar=0,
-                      max_manar=0,
-                      b_ad=0,
-                      ad=0,
-                      max_ad=0,
-                      b_ap=0,
-                      ap=0,
-                      max_ap=0,
-                      b_armor=0,
-                      armor=0,
-                      max_armor=0,
-                      b_mr=0,
-                      mr=0,
-                      max_mr=0,
-                      b_crit=0,
-                      crit=0,
-                      b_prio=0,
-                      prio=0,
-                      gold=0)
-    return player
 
 
 # ask for input for each field and create a summoner with those inputs
@@ -237,109 +157,8 @@ def create_save(lvlZero=False):
 # return summoner given name, assumes it exists
 def get_summoner_from_file(name):
     saveFileName = get_file_name(name)
-    with open(('saves/' + name + '/' + saveFileName)) as f:
-        lines = []
-        for line in f:
-            lines.append(line.strip())
-    i = 0
-    name = lines[i]
-    i += 1
-    cl = lines[i]
-    i += 1
-    level = lines[i]
-    i += 1
-    xp = lines[i]
-    i += 1
-    b_health = lines[i]
-    i += 1
-    health = lines[i]
-    i += 1
-    max_hp = lines[i]
-    i += 1
-    b_mana = lines[i]
-    i += 1
-    mana = lines[i]
-    i += 1
-    max_mana = lines[i]
-    i += 1
-    b_healthr = lines[i]
-    i += 1
-    healthr = lines[i]
-    i += 1
-    max_healthr = lines[i]
-    i += 1
-    b_manar = lines[i]
-    i += 1
-    manar = lines[i]
-    i += 1
-    max_manar = lines[i]
-    i += 1
-    b_ad = lines[i]
-    i += 1
-    ad = lines[i]
-    i += 1
-    max_ad = lines[i]
-    i += 1
-    b_ap = lines[i]
-    i += 1
-    ap = lines[i]
-    i += 1
-    max_ap = lines[i]
-    i += 1
-    b_armor = lines[i]
-    i += 1
-    armor = lines[i]
-    i += 1
-    max_armor = lines[i]
-    i += 1
-    b_mr = lines[i]
-    i += 1
-    mr = lines[i]
-    i += 1
-    max_mr = lines[i]
-    i += 1
-    b_crit = lines[i]
-    i += 1
-    crit = lines[i]
-    i += 1
-    b_prio = lines[i]
-    i += 1
-    prio = lines[i]
-    i += 1
-    gold = lines[i]
-    player = Summoner(name[6:len(name)],
-                      int(cl),
-                      int(level),
-                      int(xp),
-                      int(b_health),
-                      int(health),
-                      int(max_hp),
-                      int(b_mana),
-                      int(mana),
-                      int(max_mana),
-                      int(b_healthr),
-                      int(healthr),
-                      int(max_healthr),
-                      int(b_manar),
-                      int(manar),
-                      int(max_manar),
-                      int(b_ad),
-                      int(ad),
-                      int(max_ad),
-                      int(b_ap),
-                      int(ap),
-                      int(max_ap),
-                      int(b_armor),
-                      int(armor),
-                      int(max_armor),
-                      int(b_mr),
-                      int(mr),
-                      int(max_mr),
-                      int(b_crit),
-                      int(crit),
-                      int(b_prio),
-                      int(prio),
-                      int(gold))
+    with open('saves/' + name + '/' + saveFileName + '.pickle', 'rb') as f:
+        player = pickle.load(f)
     return player
 
 
@@ -371,14 +190,18 @@ def explore(p):
 # main menu each turn
 def get_commands(p):
     selection = input('Input command (info/items/battle/town/explore/admin): ')
-    selection = valid_input(selection, ['admin', 'info', 'items', 'battle', 'town', 'explore'])
+    selection = valid_input(
+        selection, ['admin', 'info', 'items', 'battle', 'town', 'explore'])
     if selection == 'admin':
-        category = input('Which category are you looking for? (save/battle/cheat): ')
+        category = input(
+            'Which category are you looking for? (save/battle/cheat): ')
         category = valid_input(category, ['save', 'battle', 'cheat'])
 
         if category == 'save':
-            command = input('Which commands are you looking for? (create save/delete save/show saves/switch save): ')
-            command = valid_input(command, ['create save', 'delete save', 'show saves', 'switch save'])
+            command = input(
+                'Which commands are you looking for? (create save/delete save/show saves/switch save): ')
+            command = valid_input(
+                command, ['create save', 'delete save', 'show saves', 'switch save'])
             if command == 'delete save':
                 print('Which save to delete? (or type all)')
                 show_all_saves()
@@ -406,18 +229,24 @@ def get_commands(p):
                 selection = valid_input(selection, get_all_saves())
                 return load_save(selection)
         elif category == 'battle':
-            command = input('Which commands are you looking for? (rand name, rand weapon, rand enemy): ')
-            command = valid_input(command, ['rand name', 'rand weapon', 'rand enemy'])
+            command = input(
+                'Which commands are you looking for? (rand name, rand weapon, rand enemy): ')
+            command = valid_input(
+                command, ['rand name', 'rand weapon', 'rand enemy'])
             if command == 'rand name':
-                command = input('Which type of random name? (summoner, weapon): ')
+                command = input(
+                    'Which type of random name? (summoner, weapon): ')
                 command = valid_input(command, ['summoner', 'weapon'])
-                print('Randomly generated name: ' + Battle.generate_name(command))
+                print('Randomly generated name: ' +
+                      generate_name(command))
             elif command == 'rand weapon':
-                print(Battle.generate_random_weapon(p).print_stats_without_zero(p))
+                print(Battle.generate_random_weapon(
+                    p).print_stats_without_zero(p))
             elif command == 'rand enemy':
                 print(Battle.generate_random_enemy(p, 0).print())
         elif category == 'cheat':
-            command = input('Which commands are you looking for? (level up/add gold): ')
+            command = input(
+                'Which commands are you looking for? (level up/add gold): ')
             command = valid_input(command, ['level up', 'add gold'])
             if command == 'level up':
                 levels = input('How many times would you like to level up: ')
@@ -437,7 +266,7 @@ def get_commands(p):
     elif selection == 'battle':
         p = Battle.battle(p)
     elif selection == 'town':
-        p = town(p)
+        p = Town.town(p, 'past')
     elif selection == 'explore:':
         p = explore(p)
     # end the current command with a long line to indicate clearly
@@ -481,22 +310,27 @@ def first_play(p):
         selection = input(
             '\nIt\'s time to choose a class! Type in the name of a class (mage | marksman | tank | fighter) '
             'for information, and type \'choose\' when ready!\nGet info on or \'choose\': ')
-        selection = valid_input(selection, ['mage', 'marksman', 'tank', 'fighter', 'choose'])
+        selection = valid_input(
+            selection, ['mage', 'marksman', 'tank', 'fighter', 'choose'])
     elif selection == 'start':
         selection = 'choose'
 
     while not selection == 'choose':
         if selection == 'mage':
-            print('Mages are powerful sorcerers that rely on spells and ability power to get the job done')
+            print(
+                'Mages are powerful sorcerers that rely on spells and ability power to get the job done')
         elif selection == 'marksman':
-            print('Marksmen are masters of ranged weaponry and rely on high-damage attacks to slay their foes')
+            print(
+                'Marksmen are masters of ranged weaponry and rely on high-damage attacks to slay their foes')
         elif selection == 'tank':
             print('Tanks are very beefy with large increases in health and defense')
         elif selection == 'fighter':
-            print('Fighters are versatile, with balanced defenses and damage for sustained fighting')
+            print(
+                'Fighters are versatile, with balanced defenses and damage for sustained fighting')
         selection = input('Selection: ')
     selection = input('Type the name of the class you\' would like to be: ')
-    selection = valid_input(selection, ['mage', 'marksman', 'tank', 'fighter', 'choose'])
+    selection = valid_input(
+        selection, ['mage', 'marksman', 'tank', 'fighter', 'choose'])
     p.cl = class_to_num(selection)
     p.level_up_stats()
     p.update_player_stats()

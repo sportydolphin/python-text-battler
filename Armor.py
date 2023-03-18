@@ -19,8 +19,10 @@ class Item:
         self.flavor = flavor
 
         self.stat_arr = [['name', self.name], ['slot', self.slot_str], ['health', self.health], ['mana', self.mana],
-                         ['healthr', self.healthr], ['manar', self.manar], ['ad', self.ad], ['ap', self.ap],
-                         ['armor', self.armor], ['mr', self.mr], ['crit', self.crit], ['prio', self.prio],
+                         ['healthr', self.healthr], ['manar', self.manar], [
+                             'ad', self.ad], ['ap', self.ap],
+                         ['armor', self.armor], ['mr', self.mr], [
+                             'crit', self.crit], ['prio', self.prio],
                          ['flavor', self.flavor]]
 
     # create string of name, slot and stats
@@ -42,25 +44,33 @@ class Item:
         out = self.name + '\n' + self.flavor + '\nBonus stats: | '
         for i in range(2, 12):
             if int(self.stat_arr[i][1]) != 0:
-                out += self.stat_arr[i][0] + ': ' + str(self.stat_arr[i][1]) + ' | '
+                out += self.stat_arr[i][0] + ': ' + \
+                    str(self.stat_arr[i][1]) + ' | '
         if isinstance(self, Weapon):
             out += '\ndamage type: ' + self.dmg_type + ' | scaling: ' + str(round(100 * self.pct_scale)) + '% of ' \
-                   + self.stat_scale + ' (' + str(round(self.pct_scale * p.get_statnum_fromstr(self.stat_scale))) + ' damage)'
+                   + self.stat_scale + \
+                ' (' + str(round(self.pct_scale *
+                                 p.get_statnum_fromstr(self.stat_scale))) + ' damage)'
         return out
 
 
 class Weapon(Item):
     def __init__(self, name, health, mana, healthr, manar, ad, ap, armor, mr, crit, prio, flavor, stat_scale, pct_scale,
                  dmg_type, effects):
-        super().__init__(name, Slot.WEAPON, health, mana, healthr, manar, ad, ap, armor, mr, crit, prio, flavor)
-        self.stat_scale = stat_scale  # string that will indicate which stat its damage is based on, ie 'ap', 'armor'
+        super().__init__(name, Slot.WEAPON, health, mana, healthr,
+                         manar, ad, ap, armor, mr, crit, prio, flavor)
+        # string that will indicate which stat its damage is based on, ie 'ap', 'armor'
+        self.stat_scale = stat_scale
         self.pct_scale = pct_scale
         self.dmg_type = dmg_type
         self.effects = effects  # things like armor shred, life steal, etc
         self.stat_arr = [['name', self.name], ['slot', self.slot_str], ['health', self.health], ['mana', self.mana],
-                         ['healthr', self.healthr], ['manar', self.manar], ['ad', self.ad], ['ap', self.ap],
-                         ['armor', self.armor], ['mr', self.mr], ['crit', self.crit], ['prio', self.prio],
-                         ['flavor', self.flavor], ['stat scale', self.stat_scale], ['pct scale', self.pct_scale],
+                         ['healthr', self.healthr], ['manar', self.manar], [
+                             'ad', self.ad], ['ap', self.ap],
+                         ['armor', self.armor], ['mr', self.mr], [
+                             'crit', self.crit], ['prio', self.prio],
+                         ['flavor', self.flavor], ['stat scale', self.stat_scale], [
+                             'pct scale', self.pct_scale],
                          ['dmg type', self.dmg_type], ['effects', self.effects]]
 
     # calculates damage done by the weapon
@@ -109,7 +119,7 @@ def get_slot_from_str(s):
 # returns an item object from txt file
 def get_item_from_txt(txt_path):
     lines = []
-    with open(txt_path) as f:
+    with open(txt_path, 'wb') as f:
         for line in f:
             lines.append(line.strip())
     f.close()
@@ -149,7 +159,7 @@ def write_item_to_txt(player, item, destination):
         path = 'saves/' + player.name + '/items/equipped/'
     else:
         path = 'saves/' + player.name + '/items/inventory/'
-    with open(path + item.name + '.txt', 'w+') as f:
+    with open(path + item.name + '.txt', 'wb') as f:
         f.write(item.name
                 + '\n' + item.slot_str
                 + '\n' + str(item.health)

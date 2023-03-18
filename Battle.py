@@ -1,9 +1,8 @@
 import random
 import string
-from Summoner import Summoner
-from Summoner import Class
+from Summoner import Summoner, create_default_summoner, Class
 from Armor import Weapon
-import main
+from utils import list_from_file
 
 
 def get_name_list(type):
@@ -12,12 +11,7 @@ def get_name_list(type):
         file = 'fantasy_names.txt'
     elif type == 'weapon':
         file = 'weapon_names.txt'
-    with open('fantasy_names/' + file) as f:
-        names = []
-        for line in f:
-            names.append(line.strip())
-    f.close()
-    return names
+    return list_from_file('fantasy_names/' + file)
 
 
 # type = summoner, weapon, armor
@@ -39,7 +33,7 @@ def generate_random_enemy(p, type):
     name = ''
     if type == 0:  # summoner
         name = generate_name('summoner')
-        summ = main.create_default_summoner(name)
+        summ = create_default_summoner(name)
 
         # random class
         random.seed()
@@ -75,7 +69,8 @@ def generate_random_weapon(p):
     name = generate_name('weapon')
     # generate some flavor text // TODO //
     flavor = 'A cool weapon!'
-    allStatStrings = ['health', 'mana', 'healthr', 'manar', 'ad', 'ap', 'armor', 'mr', 'prio', 'crit']
+    allStatStrings = ['health', 'mana', 'healthr',
+                      'manar', 'ad', 'ap', 'armor', 'mr', 'prio', 'crit']
     allStatNums = []
     # for i in range(len(allStatStrings)):  # populate stat increases with all 0 for now
     #    allStatNums.append(0)
@@ -100,9 +95,11 @@ def generate_random_weapon(p):
             else:  # if current stat gets 10% chance of increase
                 rand = random.randint(0, 9)
             if rand == 0:  # if chance of increase succeeds
-                coef = random.randint(0, 50)  # change this to change stat increases, currently 0-5x player level
+                # change this to change stat increases, currently 0-5x player level
+                coef = random.randint(0, 50)
                 coef = coef / 10  # coef is between 0 and 5 in increments of 0.1
-            allStatNums.append(round(p.level * coef))  # add stat change to stat array to be passed to weapon
+            # add stat change to stat array to be passed to weapon
+            allStatNums.append(round(p.level * coef))
             # constructor
         for stat in allStatNums:  # check if no stat buffs. if that's the case, run the while loop once again
             if stat != 0:
@@ -127,8 +124,10 @@ def generate_random_weapon(p):
     stat_scale = 'ad'  # default ad just in case random breaks
     if p.level == int(1):  # make it guaranteed to scale off bias stat for level 1
         rand = 8
-    if rand <= 6:  # 60% chance it'll scale off of a random stat (could be bias stat still)
-        x = random.randint(0, len(allStatStrings) - 1)  # subtract 3 to prevent scaling from prio and crit
+    # 60% chance it'll scale off of a random stat (could be bias stat still)
+    if rand <= 6:
+        # subtract 3 to prevent scaling from prio and crit
+        x = random.randint(0, len(allStatStrings) - 1)
         stat_scale = allStatStrings[x]
     else:  # 40% chance it'll scale off of bias stat
         x = random.randint(0, len(biasStats) - 1)
@@ -163,6 +162,6 @@ def battle(p):
     random.seed()
     rand = random.randint(1, 100)  # generate number 0-99
 
-    #if rand < 40:  # 40% chance to encounter enemy summoner
+    # if rand < 40:  # 40% chance to encounter enemy summoner
     #    p = generate_random_enemy(p, 0)
     return p

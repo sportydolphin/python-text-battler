@@ -2,6 +2,7 @@ import os
 from enum import Enum
 
 import Armor
+from utils import valid_input
 
 
 def create_progress_bar(name, value, maxValue):
@@ -96,11 +97,14 @@ class Summoner:
     def print(self):
         output = "________________________________________________________________"
         output += "\nSUMMONER INFORMATION:"
-        output += ("\nName:\t\t" + self.name) + "\t\tClass: " + self.get_class() + "\t\tGold: " + str(self.gold)  # summoner name
+        output += ("\nName:\t\t" + self.name) + "\t\tClass: " + \
+            self.get_class() + "\t\tGold: " + str(self.gold)  # summoner name
 
-        output += '\n' + create_progress_bar('Level', self.level, self.MAX_LEVEL)
+        output += '\n' + \
+            create_progress_bar('Level', self.level, self.MAX_LEVEL)
         output += ('\n' + create_progress_bar('XP', self.xp, self.MAX_XP))
-        output += ('\n' + create_progress_bar('Health', self.health, self.MAX_HEALTH))
+        output += ('\n' + create_progress_bar('Health',
+                   self.health, self.MAX_HEALTH))
         output += ('\n' + create_progress_bar('Mana', self.mana, self.MAX_MANA))
         output += '\n'
         output += '| ad: ' + str(self.ad) + \
@@ -149,12 +153,13 @@ class Summoner:
             return True
         return False
 
-    # if check_level_up, add
+    # if check_level_up, add 1 to level
     def level_up(self):
         self.level += 1
         return self.level_up_stats()
 
-    # actions that happen when turns ends, i.e. check level up, reset stats
+    # actions that happen when turns ends
+    # calls check_level_up, reset_stats
     def end_turn(self):
         if self.check_level_up():
             print("Congratulations, you leveled up! You are now level " + str(self.level))
@@ -371,7 +376,8 @@ class Summoner:
             for item in items:
                 if not item.startswith('.'):  # filter out any invalid files
                     # add all items in equipped folder to player's equipped item array
-                    self.equipped.append(Armor.get_item_from_txt('saves/' + self.name + '/items/equipped/' + item))
+                    self.equipped.append(Armor.get_item_from_txt(
+                        'saves/' + self.name + '/items/equipped/' + item))
 
     # equip item if free slot, or ask player to swap it or put in inventory
     # save item to appropriate equipped or inventory folder
@@ -391,7 +397,8 @@ class Summoner:
         else:
             print('You already have an item equipped in your ' + item.slot_str
                   + ' slot. Would you like to replace it with ' + item.name + '?')
-            print('Current ' + existing_item.slot_str.lower() + ' stats:\n' + existing_item.print_stats())
+            print('Current ' + existing_item.slot_str.lower() +
+                  ' stats:\n' + existing_item.print_stats())
             print(item.name + ' stats:\n' + item.print_stats())
             selection = input('Choice (y/n): ')
             selection = valid_input(selection, ['y', 'n'])
@@ -427,16 +434,41 @@ def class_to_num(st):
         return 3
     return 4
 
+# return a summoner with default values
 
-# check if selection is the same as any element of actual, return user input (may ask for re-input if invalid)
-def valid_input(selection, actual):
-    valid = False
-    for i in actual:
-        if selection == i:
-            valid = True
-    while not valid:
-        selection = input('Invalid input. Try again: ')
-        for i in actual:
-            if selection == i:
-                valid = True
-    return selection
+
+def create_default_summoner(name):
+    player = Summoner(name,
+                      cl=4,
+                      level=1,
+                      xp=0,
+                      b_health=10,
+                      health=10,
+                      max_health=10,
+                      b_mana=10,
+                      mana=10,
+                      max_mana=10,
+                      b_healthr=0,
+                      healthr=0,
+                      max_healthr=0,
+                      b_manar=0,
+                      manar=0,
+                      max_manar=0,
+                      b_ad=0,
+                      ad=0,
+                      max_ad=0,
+                      b_ap=0,
+                      ap=0,
+                      max_ap=0,
+                      b_armor=0,
+                      armor=0,
+                      max_armor=0,
+                      b_mr=0,
+                      mr=0,
+                      max_mr=0,
+                      b_crit=0,
+                      crit=0,
+                      b_prio=0,
+                      prio=0,
+                      gold=0)
+    return player
