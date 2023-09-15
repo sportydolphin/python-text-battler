@@ -1,8 +1,12 @@
 import os
 from enum import Enum
+from Items.Armor import (
+    get_item_from_pickle,
+    write_item_to_pickle,
+)
+from Items.Consumable import Consumable
 
-import Armor
-from utils import valid_input
+from utils import clear_terminal, valid_input
 
 
 def create_progress_bar(name, value, maxValue):
@@ -156,10 +160,30 @@ class Summoner:
 
     # returns all equipped items in a str
     def print_items(self):
-        output = "\nEquipped items:\n\n"
-        for it in self.equipped:
-            output += it.print_stats_without_zero(self)
-        output += "\n"
+        print("Which items would you like to view?\n")
+        print("1. Equipped items")
+        print("2. Inventory")
+        print("3. Consumables")
+        print("4. Never mind")
+        selection = input("\nEnter a number: ")
+        selection = valid_input(selection, ["1", "2", "3", "4"])
+        output = ""
+        if selection == "1":
+            output += "\nEquipped items:\n\n"
+            for it in self.equipped:
+                output += it.print_stats_without_zero(self)
+        elif selection == "2":
+            output += "\nInventory:\n\n"
+            for it in self.inventory:
+                if isinstance(it, Consumable):
+                    continue
+                output += it.print_stats_without_zero(self)
+        elif selection == "3":
+            output += "\nConsumables:\n\n"
+            for it in self.inventory:
+                if isinstance(it, Consumable):
+                    output += it.print() + "\n"
+
         return output
 
     # returns string of class of summoner
@@ -214,83 +238,62 @@ class Summoner:
     # CHANGE WHEN ADDING STAT
     # adds stats accordingly, input is [['stat', value], ['stat', value]] format
     # returns a string in format '<stat> <change> | <stat> <change> | armor +20 | ap -15
-    def stat_change(self, stats):
-        # forms output string
+    def stat_change(self, stats_changes):
         output = ""
-        for i in range(len(stats)):
-            change = stats[i][1]
-            # change the stats
-            if stats[i][0] == "level":
-                self.level += change
-            elif stats[i][0] == "xp":
-                self.xp += change
-            elif stats[i][0] == "b_health":
-                self.b_health += change
-            elif stats[i][0] == "health":
-                self.health += change
-            elif stats[i][0] == "b_mana":
-                self.b_mana += change
-            elif stats[i][0] == "mana":
-                self.mana += change
-            elif stats[i][0] == "max_hp":
-                self.MAX_HEALTH += change
-            elif stats[i][0] == "max_mana":
-                self.MAX_MANA += change
-            elif stats[i][0] == "b_healthr":
-                self.b_healthr += change
-            elif stats[i][0] == "healthr":
-                self.healthr += change
-            elif stats[i][0] == "b_manar":
-                self.b_manar += change
-            elif stats[i][0] == "manar":
-                self.manar += change
-            elif stats[i][0] == "max_healthr":
-                self.MAX_HEALTHR += change
-            elif stats[i][0] == "max_manar":
-                self.MAX_MANAR += change
-            elif stats[i][0] == "b_ad":
-                self.b_ad += change
-            elif stats[i][0] == "ad":
-                self.ad += change
-            elif stats[i][0] == "max_ad":
-                self.MAX_AD += change
-            elif stats[i][0] == "b_ap":
-                self.b_ap += change
-            elif stats[i][0] == "ap":
-                self.ap += change
-            elif stats[i][0] == "max_ap":
-                self.MAX_AP += change
-            elif stats[i][0] == "b_armor":
-                self.b_armor += change
-            elif stats[i][0] == "armor":
-                self.armor += change
-            elif stats[i][0] == "max_armor":
-                self.MAX_ARMOR += change
-            elif stats[i][0] == "b_mr":
-                self.b_mr += change
-            elif stats[i][0] == "mr":
-                self.mr += change
-            elif stats[i][0] == "max_mr":
-                self.MAX_MR += change
-            elif stats[i][0] == "b_crit":
-                self.b_crit += change
-            elif stats[i][0] == "crit":
-                self.crit += change
-            elif stats[i][0] == "b_prio":
-                self.b_prio += change
-            elif stats[i][0] == "prio":
-                self.prio += change
-            elif stats[i][0] == "gold":
-                self.gold += change
 
-            # make the output string
-            output += stats[i][0] + " "
-            if stats[i][1] >= 0:
-                output += "+"
-            output += str(stats[i][1])
-            if not i == len(stats) - 1:
-                output += " | "
+        for stat, change in stats_changes:
+            if hasattr(self, stat):
+                current_value = getattr(self, stat)
+                setattr(self, stat, current_value + change)
+                output += f"{stat} {change:+d}"
+                if stat != stats_changes[-1][0]:
+                    output += " | "
+
         return output
+
+    @classmethod
+    def prompt_for_stat_change(cls, character_instance):
+        valid_stats = [
+            "level",
+            "xp",
+            "b_health",
+            "health",
+            "b_mana",
+            "mana",
+            "MAX_HEALTH",
+            "MAX_MANA",
+            # ... (add all other stat names here)
+            "gold",
+        ]
+
+        print("Available stats:")
+        for i, stat in enumerate(valid_stats, 1):
+            print(f"{i}. {stat}")
+
+        stats_changes = []
+        while True:
+            stat_name = input(
+                "Enter the name of the stat you want to change (or 'done' to finish): "
+            )
+
+            if stat_name == "done":
+                break
+
+            if stat_name not in valid_stats:
+                print("Invalid stat name.")
+                continue
+
+            try:
+                change_value = int(
+                    input(f"How much would you like to change {stat_name} by? ")
+                )
+                stats_changes.append([stat_name, change_value])
+            except ValueError:
+                print("Invalid change value.")
+                continue
+
+        result = character_instance.stat_change(stats_changes)
+        print(result)
 
     # set all MAX_STATS to base_stat + item bonuses
     # call when leveling up or equipping item
@@ -418,22 +421,51 @@ class Summoner:
         elif st == "gold":
             return self.gold
 
+    # return all consumables in inventory
+    def get_consumables(self):
+        consumables = []
+        for item in self.inventory:
+            if isinstance(item, Consumable):
+                consumables.append(item)
+        return consumables
+
+    # return list of names of consumables by player
+    def get_consumable_names(self):
+        consumable_names = []
+        for item in self.inventory:
+            if isinstance(item, Consumable):
+                consumable_names.append(item.name)
+        return consumable_names
+
     # load the player's items from text files
     def load_items(self):
-        items = os.listdir("saves/" + self.name + "/items/equipped")
-        if len(items) > 0:  # account for .DS file in empty folder
-            for item in items:
-                if not item.startswith("."):  # filter out any invalid files
-                    # add all items in equipped folder to player's equipped item array
-                    self.equipped.append(
-                        Armor.get_item_from_txt(
-                            "saves/" + self.name + "/items/equipped/" + item
-                        )
-                    )
+        equipped_items_path = "saves/" + self.name + "/items/equipped"
+        items = [
+            item for item in os.listdir(equipped_items_path) if item.endswith(".pkl")
+        ]
+
+        for item in items:
+            self.equipped.append(
+                get_item_from_pickle(os.path.join(equipped_items_path, item))
+            )
 
     # equip item if free slot, or ask player to swap it or put in inventory
     # save item to appropriate equipped or inventory folder
     def acquire_item(self, item):
+        # First, check if the item is a Consumable
+        if isinstance(item, Consumable):
+            print("You have acquired a consumable: " + str(item))
+            selection = input("Would you like to consume it now? (y/n): ")
+            selection = valid_input(selection, ["y", "n"])
+            if selection == "y":
+                # Logic for consuming the item here
+                self.consume_consumable(item, is_in_inventory=False)
+            else:
+                self.inventory.append(item)
+                print("You stored " + item.name + " in your inventory.")
+                write_item_to_pickle(self, item, "consumables")
+            return
+
         # if player equipped item, call update_player_stats
         # check if player already has an item of the same slot equipped
         can_equip = True
@@ -445,7 +477,7 @@ class Summoner:
         if can_equip:
             self.equipped.append(item)
             print("You equipped " + item.name + "!")
-            Armor.write_item_to_txt(self, item, "equipped")
+            write_item_to_pickle(self, item, "equipped")
         else:
             print(
                 "You already have an item equipped in your "
@@ -468,11 +500,40 @@ class Summoner:
                 self.equipped.remove(existing_item)
                 self.equipped.append(item)
                 print("You equipped " + item.name + "!")
-                Armor.write_item_to_txt(self, item, "equipped")
+                write_item_to_pickle(self, item, "equipped")
             else:
                 self.inventory.append(item)
+                clear_terminal()
                 print("You stored " + item.name + " in your inventory.")
-                Armor.write_item_to_txt(self, item, "inventory")
+                write_item_to_pickle(self, item, "inventory")
+
+    def consume_consumable(self, item, is_in_inventory=True):
+        clear_terminal()
+        # if item is string, find item in inventory
+        if isinstance(item, str):
+            for i in self.inventory:
+                if i.name == item:
+                    item = i
+                    break
+        print("You consumed " + item.name + "!")
+        restore_stat = item.resource
+        restore_amount = item.restore_amount
+        self.stat_change([[restore_stat, restore_amount]])
+        print("You restored " + str(restore_amount) + " " + restore_stat + "!")
+        if is_in_inventory:
+            self.delete_item_from_inventory(item)
+
+    def delete_item_from_inventory(self, item):
+        self.inventory.remove(item)
+        if isinstance(item, Consumable):
+            os.remove("saves/" + self.name + "/items/consumables/" + item.name + ".pkl")
+        else:
+            os.remove("saves/" + self.name + "/items/inventory/" + item.name + ".pkl")
+
+    def can_afford(self, item):
+        if item.cost_in_gold > self.gold:
+            return False
+        return True
 
 
 class Class(Enum):
@@ -497,8 +558,6 @@ def class_to_num(st):
 
 
 # return a summoner with default values
-
-
 def create_default_summoner(name):
     player = Summoner(
         name,

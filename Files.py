@@ -2,8 +2,9 @@
 import os
 import pickle
 import shutil
+import time
 from Summoner import Summoner, create_default_summoner, create_test_summoner, max_xp
-from utils import get_file_name, valid_input
+from utils import clear_terminal, get_file_name, valid_input
 
 
 def find_file(file_name, cur_dir="saves"):
@@ -23,7 +24,9 @@ def find_file(file_name, cur_dir="saves"):
 # load summoner items
 def load_save(name):
     if find_file(name):  # Save file is found
+        clear_terminal()
         print("Save found.")
+        time.sleep(1)
         player = get_summoner_from_file(name)
         player.load_items()
     else:  # Save file is not found
@@ -36,6 +39,7 @@ def load_save(name):
         save_summoner_to_file(player)
         print("Summoner " + player.name + " created at level " + player.level)
     print(player.print())
+    time.sleep(1)
     return player
 
 
@@ -92,6 +96,8 @@ def save_summoner_to_file(s):
         os.mkdir("saves/" + s.name + "/items/equipped")
     if not os.path.exists("saves/" + s.name + "/items/inventory"):
         os.mkdir("saves/" + s.name + "/items/inventory")
+    if not os.path.exists("saves/" + s.name + "/items/consumables"):
+        os.mkdir("saves/" + s.name + "/items/consumables")
 
 
 # ask for input for each field and create a summoner with those inputs

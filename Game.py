@@ -16,8 +16,14 @@ from Files import (
     show_all_saves,
 )
 import Town.Town as Town
-from Summoner import class_to_num, create_default_summoner, create_test_summoner
-from utils import valid_input
+from Summoner import (
+    Summoner,
+    class_to_num,
+    create_default_summoner,
+    create_progress_bar,
+    create_test_summoner,
+)
+from utils import clear_terminal, valid_input
 
 
 def town(p):
@@ -29,7 +35,7 @@ def explore(p):
 
 
 # main menu each turn
-def get_commands(p):
+def get_commands(p: Summoner):
     selection = input("Input command (info/items/battle/town/explore/admin): ")
     selection = valid_input(
         selection, ["admin", "info", "items", "battle", "town", "explore"]
@@ -85,8 +91,10 @@ def get_commands(p):
             elif command == "rand enemy":
                 print(generate_random_enemy(p, 0).print())
         elif category == "cheat":
-            command = input("Which commands are you looking for? (level up/add gold): ")
-            command = valid_input(command, ["level up", "add gold"])
+            command = input(
+                "Which commands are you looking for? (level up/add gold/stat change): "
+            )
+            command = valid_input(command, ["level up", "add gold", "stat change"])
             if command == "level up":
                 levels = input("How many times would you like to level up: ")
                 for i in range(int(levels)):
@@ -98,10 +106,41 @@ def get_commands(p):
                 gold = input("Enter gold to add: ")
                 p.gold += int(gold)
                 print("Added " + gold + " gold.")
+            elif command == "stat change":
+                Summoner.prompt_for_stat_change(p)
     elif selection == "info":
         print(p.print())
     elif selection == "items":
+        clear_terminal()
         print(p.print_items())
+        print("\nWould you like to consume any items? (y/n)")
+        selection = input("Selection: ")
+        selection = valid_input(selection, ["y", "n"])
+        if selection == "y":
+            current_page_start = 0
+            items_per_page = 5
+            while True:
+                clear_terminal()
+                print(create_progress_bar("Health", p.health, p.MAX_HEALTH))
+                print(create_progress_bar("Mana", p.mana, p.MAX_MANA))
+                print("\nWhich item would you like to consume?")
+
+                choice = display_items_page(p, current_page_start, items_per_page)
+
+                if (
+                    choice == str(items_per_page + 1)
+                    and len(p.get_consumables()) > current_page_start + items_per_page
+                ):
+                    current_page_start += items_per_page
+                    continue
+                elif choice == str(items_per_page + 2):
+                    break
+                else:
+                    selected_item = p.get_consumables()[
+                        current_page_start + int(choice) - 1
+                    ]
+                    p.consume_consumable(selected_item.name)
+                    break
     elif selection == "battle":
         p = battle(p)
     elif selection == "town":
@@ -135,8 +174,9 @@ def initial_screen():
     elif selection == "c":
         return create_save(True)
     elif selection == "t":
+        clear_terminal()
         print("Welcome to Test Mode!")
-        print("1. Town\n2. Battle\n3. Explore\n...")  # Add more as required
+        print("\n1. Town\n2. Battle\n3. Explore\n")  # Add more as required
         test_selection = input("Select the function you want to test: ")
         # create a default player for testing or you can load a specific one
         p = create_save(lvlZero=True, isTest=True)
@@ -212,6 +252,34 @@ def first_play(p):
     p.full_heal()
     save_summoner_to_file(p)
     return p
+
+
+def display_items_page(p, start_index, items_per_page):
+    # retrieve player consumables to list and select from
+    options = p.get_consumables()[start_index : start_index + items_per_page]
+
+    for i, item in enumerate(options):
+        print(f"{i + 1}. {item.name} -- restores {item.restore_amount} {item.resource}")
+
+    next_option_num = len(options) + 1
+    if len(p.get_consumables()) > start_index + items_per_page:
+        print(f"{next_option_num}. Next page")
+        next_option_num += 1
+
+    print(f"{next_option_num}. Exit")
+
+    valid_options = [str(i + 1) for i in range(len(options))] + [
+        str(next_option_num),
+        str(next_option_num + 1) if next_option_num != len(options) + 1 else None,
+    ]
+    valid_options = [
+        option for option in valid_options if option
+    ]  # remove any None values
+
+    selection = input("Enter item number: ")
+    selection = valid_input(selection, valid_options)
+
+    return selection
 
 
 if __name__ == "__main__":
