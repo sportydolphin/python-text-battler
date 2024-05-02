@@ -1,38 +1,38 @@
 import random
 import string
 from Summoner import Summoner, create_default_summoner, Class
-from Armor import Weapon
+from Items.Armor import Weapon
 from utils import list_from_file
 
 
 def get_name_list(type):
-    file = 'fantasy_names.txt'
-    if type == 'summoner':
-        file = 'fantasy_names.txt'
-    elif type == 'weapon':
-        file = 'weapon_names.txt'
-    return list_from_file('fantasy_names/' + file)
+    file = "fantasy_names.txt"
+    if type == "summoner":
+        file = "fantasy_names.txt"
+    elif type == "weapon":
+        file = "weapon_names.txt"
+    return list_from_file("fantasy_names/" + file)
 
 
 # type = summoner, weapon, armor
 def generate_name(type):
-    name = ''
+    name = ""
     nameList = get_name_list(type)
 
     random.seed()
     rand = random.randrange(len(nameList))
     enemyName = nameList[rand]
-    if type == 'summoner':
+    if type == "summoner":
         rand = random.randrange(len(nameList))
-        enemyName += ' ' + nameList[rand]
+        enemyName += " " + nameList[rand]
     return enemyName
 
 
 # If type is 0, returns a random summoner as enemy
 def generate_random_enemy(p, type):
-    name = ''
+    name = ""
     if type == 0:  # summoner
-        name = generate_name('summoner')
+        name = generate_name("summoner")
         summ = create_default_summoner(name)
 
         # random class
@@ -41,7 +41,9 @@ def generate_random_enemy(p, type):
         summ.cl = rand
 
         # setting level conditions
-        if p.level <= 4:  # if player is level 4 or below, enemy is not above player level
+        if (
+            p.level <= 4
+        ):  # if player is level 4 or below, enemy is not above player level
             lwrBound = p.level - 3
             uprBound = p.level
         else:  # otherwise level is random in range:
@@ -66,25 +68,35 @@ def generate_random_enemy(p, type):
 # generate a weapon based on class of summoner p
 def generate_random_weapon(p):
     # generate random weapon name
-    name = generate_name('weapon')
+    name = generate_name("weapon")
     # generate some flavor text // TODO //
-    flavor = 'A cool weapon!'
-    allStatStrings = ['health', 'mana', 'healthr',
-                      'manar', 'ad', 'ap', 'armor', 'mr', 'prio', 'crit']
+    flavor = "A cool weapon!"
+    allStatStrings = [
+        "health",
+        "mana",
+        "healthr",
+        "manar",
+        "ad",
+        "ap",
+        "armor",
+        "mr",
+        "prio",
+        "crit",
+    ]
     allStatNums = []
     # for i in range(len(allStatStrings)):  # populate stat increases with all 0 for now
     #    allStatNums.append(0)
 
     # depending on class, increase likelihood of certain stats increasing
-    biasStats = ['ad']
+    biasStats = ["ad"]
     if p.clStr == Class.MAGE:
-        biasStats = ['ap', 'mana', 'manar']
+        biasStats = ["ap", "mana", "manar"]
     elif p.clStr == Class.TANK:
-        biasStats = ['health', 'healthr', 'armor', 'mr']
+        biasStats = ["health", "healthr", "armor", "mr"]
     elif p.clStr == Class.FIGHTER:
-        biasStats = ['health', 'ad', 'armor', 'mr']
+        biasStats = ["health", "ad", "armor", "mr"]
     elif p.clStr == Class.MARKSMAN:
-        biasStats = ['ad', 'prio', 'crit']
+        biasStats = ["ad", "prio", "crit"]
 
     allStatsZero = True
     while allStatsZero:
@@ -101,27 +113,33 @@ def generate_random_weapon(p):
             # add stat change to stat array to be passed to weapon
             allStatNums.append(round(p.level * coef))
             # constructor
-        for stat in allStatNums:  # check if no stat buffs. if that's the case, run the while loop once again
+        for (
+            stat
+        ) in (
+            allStatNums
+        ):  # check if no stat buffs. if that's the case, run the while loop once again
             if stat != 0:
                 allStatsZero = False
         if allStatsZero:
             allStatNums = []
 
     # determine stat scaling
-    if 'healthr' in biasStats:  # ensuring damage only scales off of hp, mana, ad, ap, armor, mr
-        biasStats.remove('healthr')
-    if 'manar' in biasStats:
-        biasStats.remove('manar')
-    if 'prio' in biasStats:
-        biasStats.remove('prio')
-    if 'crit' in biasStats:
-        biasStats.remove('crit')
-    allStatStrings.remove('healthr')
-    allStatStrings.remove('manar')
-    allStatStrings.remove('prio')
-    allStatStrings.remove('crit')
+    if (
+        "healthr" in biasStats
+    ):  # ensuring damage only scales off of hp, mana, ad, ap, armor, mr
+        biasStats.remove("healthr")
+    if "manar" in biasStats:
+        biasStats.remove("manar")
+    if "prio" in biasStats:
+        biasStats.remove("prio")
+    if "crit" in biasStats:
+        biasStats.remove("crit")
+    allStatStrings.remove("healthr")
+    allStatStrings.remove("manar")
+    allStatStrings.remove("prio")
+    allStatStrings.remove("crit")
     rand = random.randint(1, 10)
-    stat_scale = 'ad'  # default ad just in case random breaks
+    stat_scale = "ad"  # default ad just in case random breaks
     if p.level == int(1):  # make it guaranteed to scale off bias stat for level 1
         rand = 8
     # 60% chance it'll scale off of a random stat (could be bias stat still)
@@ -140,19 +158,34 @@ def generate_random_weapon(p):
 
     # determine physical or magic damage
     rand = random.randint(0, 1)
-    dmg_type = ''
+    dmg_type = ""
     if rand == 0:
-        dmg_type = 'physical'
+        dmg_type = "physical"
     else:
-        dmg_type = 'magic'
+        dmg_type = "magic"
 
     # determine effects
-    effects = ['None']
+    effects = ["None"]
 
     # create weapon
-    weapon = Weapon(name, allStatNums[0], allStatNums[1], allStatNums[2], allStatNums[3], allStatNums[4],
-                    allStatNums[5], allStatNums[6], allStatNums[7], allStatNums[8], allStatNums[9], flavor, stat_scale,
-                    pct_scale, dmg_type, effects)
+    weapon = Weapon(
+        name,
+        allStatNums[0],
+        allStatNums[1],
+        allStatNums[2],
+        allStatNums[3],
+        allStatNums[4],
+        allStatNums[5],
+        allStatNums[6],
+        allStatNums[7],
+        allStatNums[8],
+        allStatNums[9],
+        flavor,
+        stat_scale,
+        pct_scale,
+        dmg_type,
+        effects,
+    )
 
     return weapon
 
