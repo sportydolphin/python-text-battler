@@ -1,5 +1,8 @@
 import os
 import pickle
+import random
+import sys
+import time
 
 
 def clear_terminal():
@@ -20,8 +23,6 @@ def valid_input(selection, actual):
     return selection
 
 # given path to file, return array containing each line of file
-
-
 def list_from_file(file_path):
     lines = []
     with open(file_path) as f:
@@ -29,3 +30,10 @@ def list_from_file(file_path):
             lines.append(line.strip())
     f.close()
     return lines
+
+# print something slowly, as if a human was typing it
+def print_slowly(str, typing_speed):
+    for l in str:
+        sys.stdout.write(l)
+        sys.stdout.flush()
+        time.sleep(random.random()*10.0/typing_speed)

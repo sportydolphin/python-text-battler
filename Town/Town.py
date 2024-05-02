@@ -1,11 +1,11 @@
-import utils
+from utils import print_slowly, valid_input, clear_terminal
 from .Tavern import tavern
 
 
 def town(summoner, era):
-    utils.clear_terminal()
+    clear_terminal()
     if era == 'past':
-        print('Welcome to the primitive town of the past!')
+        print_slowly('Welcome to the primitive town of the past!', 200)
     elif era == 'present':
         print('Welcome to the modern town of the present!')
     elif era == 'future':
@@ -17,13 +17,13 @@ def town(summoner, era):
 
 
 def navigate(summoner):
-    print('Where would you like to go?')
-    print('1. Tavern')
-    print('2. Shop')
-    print('3. Inn')
-    print('4. Exit')
+    print_slowly('\nWhere would you like to go?', 200)
+    print_slowly('\n1. Tavern', 300)
+    print_slowly('\n2. Shop', 300)
+    print_slowly('\n3. Inn', 300)
+    print_slowly('\n4. Exit', 300)
     selection = input('Enter a number: ')
-    selection = utils.valid_input(selection, ['1', '2', '3', '4'])
+    selection = valid_input(selection, ['1', '2', '3', '4'])
     if selection == '1':
         summoner = tavern(summoner)
     elif selection == '2':
