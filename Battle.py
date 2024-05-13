@@ -1,6 +1,5 @@
 import random
-import string
-from Summoner import Summoner, create_default_summoner, Class
+from Summoner import create_default_summoner, Class
 from Items.Armor import Weapon
 from utils import list_from_file
 

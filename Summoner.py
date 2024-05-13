@@ -1,5 +1,6 @@
 import os
 from enum import Enum
+from Game import display_items_page
 from Items.Armor import (
     get_item_from_pickle,
     write_item_to_pickle,
@@ -183,6 +184,35 @@ class Summoner:
             for it in self.inventory:
                 if isinstance(it, Consumable):
                     output += it.print() + "\n"
+
+            print("\nWould you like to consume any items? (y/n)")
+            selection = input("Selection: ")
+            selection = valid_input(selection, ["y", "n"])
+            if selection == "y":
+                current_page_start = 0
+                items_per_page = 5
+                while True:
+                    clear_terminal()
+                    print(create_progress_bar("Health", self.health, self.MAX_HEALTH))
+                    print(create_progress_bar("Mana", self.mana, self.MAX_MANA))
+                    print("\nWhich item would you like to consume?")
+
+                    choice = display_items_page(self, current_page_start, items_per_page)
+
+                    if (
+                        choice == str(items_per_page + 1)
+                        and len(self.get_consumables()) > current_page_start + items_per_page
+                    ):
+                        current_page_start += items_per_page
+                        continue
+                    elif choice == str(items_per_page + 2):
+                        break
+                    else:
+                        selected_item = self.get_consumables()[
+                            current_page_start + int(choice) - 1
+                        ]
+                        self.consume_consumable(selected_item.name)
+                        break
 
         return output
 
@@ -440,6 +470,11 @@ class Summoner:
     # load the player's items from text files
     def load_items(self):
         equipped_items_path = "saves/" + self.name + "/items/equipped"
+        
+        # Create the directory if it doesn't exist
+        if not os.path.exists(equipped_items_path):
+            os.makedirs(equipped_items_path)
+        
         items = [
             item for item in os.listdir(equipped_items_path) if item.endswith(".pkl")
         ]

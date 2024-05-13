@@ -113,34 +113,6 @@ def get_commands(p: Summoner):
     elif selection == "items":
         clear_terminal()
         print(p.print_items())
-        print("\nWould you like to consume any items? (y/n)")
-        selection = input("Selection: ")
-        selection = valid_input(selection, ["y", "n"])
-        if selection == "y":
-            current_page_start = 0
-            items_per_page = 5
-            while True:
-                clear_terminal()
-                print(create_progress_bar("Health", p.health, p.MAX_HEALTH))
-                print(create_progress_bar("Mana", p.mana, p.MAX_MANA))
-                print("\nWhich item would you like to consume?")
-
-                choice = display_items_page(p, current_page_start, items_per_page)
-
-                if (
-                    choice == str(items_per_page + 1)
-                    and len(p.get_consumables()) > current_page_start + items_per_page
-                ):
-                    current_page_start += items_per_page
-                    continue
-                elif choice == str(items_per_page + 2):
-                    break
-                else:
-                    selected_item = p.get_consumables()[
-                        current_page_start + int(choice) - 1
-                    ]
-                    p.consume_consumable(selected_item.name)
-                    break
     elif selection == "battle":
         p = battle(p)
     elif selection == "town":
